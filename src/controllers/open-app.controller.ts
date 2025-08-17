@@ -32,7 +32,7 @@ export const openAppController = (c: Context) => {
                 if (isIOS || isAndroid) {
                     window.location.href = deepLink;
 
-                    const timeout = 1000;
+                    const timeout = 2500;
                     const start = Date.now();
 
                     setTimeout(function() {

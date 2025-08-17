@@ -1,24 +1,24 @@
-import { Hono } from 'hono';
-import { zValidator } from '@hono/zod-validator';
-import userController from '../controllers/user.controller';
-import { 
-  createUserSchema, 
-  updateUserSchema, 
+import { Hono } from "hono";
+import { zValidator } from "@hono/zod-validator";
+import userController from "../controllers/user.controller.js";
+import {
+  createUserSchema,
+  updateUserSchema,
   idParamSchema,
-  paginationSchema 
-} from '../utils/validation';
+  paginationSchema,
+} from "../utils/validation.js";
 
 const userRoutes = new Hono();
 
 // Get all users with pagination
 userRoutes.get(
-  '/',
-  zValidator('query', paginationSchema, (result, c) => {
+  "/",
+  zValidator("query", paginationSchema, (result, c) => {
     if (!result.success) {
       return c.json(
         {
           success: false,
-          message: 'Invalid query parameters',
+          message: "Invalid query parameters",
           errors: result.error.issues,
         },
         400
@@ -30,13 +30,13 @@ userRoutes.get(
 
 // Get user by ID
 userRoutes.get(
-  '/:id',
-  zValidator('param', idParamSchema, (result, c) => {
+  "/:id",
+  zValidator("param", idParamSchema, (result, c) => {
     if (!result.success) {
       return c.json(
         {
           success: false,
-          message: 'Invalid user ID',
+          message: "Invalid user ID",
           errors: result.error.issues,
         },
         400
@@ -48,13 +48,13 @@ userRoutes.get(
 
 // Create new user
 userRoutes.post(
-  '/',
-  zValidator('json', createUserSchema, (result, c) => {
+  "/",
+  zValidator("json", createUserSchema, (result, c) => {
     if (!result.success) {
       return c.json(
         {
           success: false,
-          message: 'Validation error',
+          message: "Validation error",
           errors: result.error.issues,
         },
         400
@@ -66,25 +66,25 @@ userRoutes.post(
 
 // Update user
 userRoutes.put(
-  '/:id',
-  zValidator('param', idParamSchema, (result, c) => {
+  "/:id",
+  zValidator("param", idParamSchema, (result, c) => {
     if (!result.success) {
       return c.json(
         {
           success: false,
-          message: 'Invalid user ID',
+          message: "Invalid user ID",
           errors: result.error.issues,
         },
         400
       );
     }
   }),
-  zValidator('json', updateUserSchema, (result, c) => {
+  zValidator("json", updateUserSchema, (result, c) => {
     if (!result.success) {
       return c.json(
         {
           success: false,
-          message: 'Validation error',
+          message: "Validation error",
           errors: result.error.issues,
         },
         400
@@ -96,13 +96,13 @@ userRoutes.put(
 
 // Delete user
 userRoutes.delete(
-  '/:id',
-  zValidator('param', idParamSchema, (result, c) => {
+  "/:id",
+  zValidator("param", idParamSchema, (result, c) => {
     if (!result.success) {
       return c.json(
         {
           success: false,
-          message: 'Invalid user ID',
+          message: "Invalid user ID",
           errors: result.error.issues,
         },
         400

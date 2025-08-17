@@ -1,11 +1,6 @@
-"use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const mongodb_1 = require("mongodb");
-const dotenv_1 = __importDefault(require("dotenv"));
-dotenv_1.default.config();
+import { MongoClient } from 'mongodb';
+import dotenv from 'dotenv';
+dotenv.config();
 class Database {
     static instance;
     client = null;
@@ -25,7 +20,7 @@ class Database {
             }
             const uri = process.env.MONGODB_URI || 'mongodb://localhost:27017/hono_backend';
             const dbName = process.env.DATABASE_NAME || 'hono_backend';
-            this.client = new mongodb_1.MongoClient(uri);
+            this.client = new MongoClient(uri);
             await this.client.connect();
             this.db = this.client.db(dbName);
             console.log(`Connected to MongoDB database: ${dbName}`);
@@ -71,4 +66,4 @@ class Database {
         return this.client;
     }
 }
-exports.default = Database.getInstance();
+export default Database.getInstance();

@@ -1,6 +1,11 @@
-import { Collection, ObjectId, WithId } from 'mongodb';
-import database from '../config/database';
-import { IUser, IUserInput, IUserUpdate, IUserResponse } from '../types/user';
+import { Collection, ObjectId, WithId } from "mongodb";
+import database from "../config/database.js";
+import {
+  IUser,
+  IUserInput,
+  IUserUpdate,
+  IUserResponse,
+} from "../types/user.js";
 
 class UserModel {
   private collection: Collection<IUser> | null = null;
@@ -8,13 +13,13 @@ class UserModel {
 
   private async getCollection(): Promise<Collection<IUser>> {
     if (!this.collection) {
-      this.collection = database.getDb().collection<IUser>('users');
+      this.collection = database.getDb().collection<IUser>("users");
       if (!this.indexesCreated) {
         await this.createIndexes();
         this.indexesCreated = true;
       }
     }
-    return this.collection;
+    return this.collection!;
   }
 
   private async createIndexes(): Promise<void> {
@@ -22,10 +27,10 @@ class UserModel {
       if (this.collection) {
         // Create unique index for email
         await this.collection.createIndex({ email: 1 }, { unique: true });
-        console.log('User indexes created successfully');
+        console.log("User indexes created successfully");
       }
     } catch (error) {
-      console.error('Error creating user indexes:', error);
+      console.error("Error creating user indexes:", error);
     }
   }
 
@@ -52,15 +57,15 @@ class UserModel {
 
       const result = await collection.insertOne(user);
       const createdUser = await collection.findOne({ _id: result.insertedId });
-      
+
       if (!createdUser) {
-        throw new Error('Failed to create user');
+        throw new Error("Failed to create user");
       }
 
       return this.toResponse(createdUser);
     } catch (error: any) {
       if (error.code === 11000) {
-        throw new Error('Email already exists');
+        throw new Error("Email already exists");
       }
       throw error;
     }
@@ -70,11 +75,9 @@ class UserModel {
   async findAll(filter: any = {}, options: any = {}): Promise<IUserResponse[]> {
     try {
       const collection = await this.getCollection();
-      const users = await collection
-        .find(filter, options)
-        .toArray();
-      
-      return users.map(user => this.toResponse(user));
+      const users = await collection.find(filter, options).toArray();
+
+      return users.map((user) => this.toResponse(user));
     } catch (error) {
       throw error;
     }
@@ -89,7 +92,7 @@ class UserModel {
 
       const collection = await this.getCollection();
       const user = await collection.findOne({ _id: new ObjectId(id) });
-      
+
       if (!user) {
         return null;
       }
@@ -111,7 +114,10 @@ class UserModel {
   }
 
   // Update user by ID
-  async update(id: string, updateData: IUserUpdate): Promise<IUserResponse | null> {
+  async update(
+    id: string,
+    updateData: IUserUpdate
+  ): Promise<IUserResponse | null> {
     try {
       if (!ObjectId.isValid(id)) {
         return null;
@@ -126,7 +132,7 @@ class UserModel {
       const result = await collection.findOneAndUpdate(
         { _id: new ObjectId(id) },
         { $set: updateDoc },
-        { returnDocument: 'after' }
+        { returnDocument: "after" }
       );
 
       if (!result) {
@@ -136,7 +142,7 @@ class UserModel {
       return this.toResponse(result);
     } catch (error: any) {
       if (error.code === 11000) {
-        throw new Error('Email already exists');
+        throw new Error("Email already exists");
       }
       throw error;
     }

@@ -1,7 +1,7 @@
-import { Context } from 'hono';
-import { HTTPException } from 'hono/http-exception';
-import UserModel from '../models/user.model';
-import { CreateUserInput, UpdateUserInput } from '../utils/validation';
+import { Context } from "hono";
+import { HTTPException } from "hono/http-exception";
+import UserModel from "../models/user.model.js";
+import { CreateUserInput, UpdateUserInput } from "../utils/validation.js";
 
 class UserController {
   private userModel: UserModel;
@@ -13,17 +13,20 @@ class UserController {
   // Get all users
   async getUsers(c: Context) {
     try {
-      const { page = '1', limit = '10' } = c.req.query();
+      const { page = "1", limit = "10" } = c.req.query();
       const pageNum = parseInt(page);
       const limitNum = parseInt(limit);
       const skip = (pageNum - 1) * limitNum;
 
-      const users = await this.userModel.findAll({}, { 
-        skip, 
-        limit: limitNum,
-        projection: { password: 0 }
-      });
-      
+      const users = await this.userModel.findAll(
+        {},
+        {
+          skip,
+          limit: limitNum,
+          projection: { password: 0 },
+        }
+      );
+
       const total = await this.userModel.count();
       const totalPages = Math.ceil(total / limitNum);
 
@@ -45,11 +48,11 @@ class UserController {
   // Get user by ID
   async getUserById(c: Context) {
     try {
-      const id = c.req.param('id');
+      const id = c.req.param("id");
       const user = await this.userModel.findById(id);
 
       if (!user) {
-        throw new HTTPException(404, { message: 'User not found' });
+        throw new HTTPException(404, { message: "User not found" });
       }
 
       return c.json({
@@ -67,11 +70,14 @@ class UserController {
       const body = await c.req.json<CreateUserInput>();
       const user = await this.userModel.create(body);
 
-      return c.json({
-        success: true,
-        message: 'User created successfully',
-        data: user,
-      }, 201);
+      return c.json(
+        {
+          success: true,
+          message: "User created successfully",
+          data: user,
+        },
+        201
+      );
     } catch (error) {
       throw error;
     }
@@ -80,18 +86,18 @@ class UserController {
   // Update user
   async updateUser(c: Context) {
     try {
-      const id = c.req.param('id');
+      const id = c.req.param("id");
       const body = await c.req.json<UpdateUserInput>();
-      
+
       const user = await this.userModel.update(id, body);
 
       if (!user) {
-        throw new HTTPException(404, { message: 'User not found' });
+        throw new HTTPException(404, { message: "User not found" });
       }
 
       return c.json({
         success: true,
-        message: 'User updated successfully',
+        message: "User updated successfully",
         data: user,
       });
     } catch (error) {
@@ -102,16 +108,16 @@ class UserController {
   // Delete user
   async deleteUser(c: Context) {
     try {
-      const id = c.req.param('id');
+      const id = c.req.param("id");
       const deleted = await this.userModel.delete(id);
 
       if (!deleted) {
-        throw new HTTPException(404, { message: 'User not found' });
+        throw new HTTPException(404, { message: "User not found" });
       }
 
       return c.json({
         success: true,
-        message: 'User deleted successfully',
+        message: "User deleted successfully",
       });
     } catch (error) {
       throw error;

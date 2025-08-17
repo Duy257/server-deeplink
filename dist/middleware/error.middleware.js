@@ -1,16 +1,13 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.logger = exports.errorHandler = void 0;
-const http_exception_1 = require("hono/http-exception");
-const zod_1 = require("zod");
-const errorHandler = async (c, next) => {
+import { HTTPException } from 'hono/http-exception';
+import { ZodError } from 'zod';
+export const errorHandler = async (c, next) => {
     try {
         await next();
     }
     catch (error) {
         console.error('Error:', error);
         // Handle Zod validation errors
-        if (error instanceof zod_1.ZodError) {
+        if (error instanceof ZodError) {
             return c.json({
                 success: false,
                 message: 'Validation error',
@@ -21,7 +18,7 @@ const errorHandler = async (c, next) => {
             }, 400);
         }
         // Handle HTTP exceptions
-        if (error instanceof http_exception_1.HTTPException) {
+        if (error instanceof HTTPException) {
             return c.json({
                 success: false,
                 message: error.message,
@@ -43,9 +40,8 @@ const errorHandler = async (c, next) => {
         }, 500);
     }
 };
-exports.errorHandler = errorHandler;
 // Logger middleware
-const logger = async (c, next) => {
+export const logger = async (c, next) => {
     const start = Date.now();
     const method = c.req.method;
     const path = c.req.path;
@@ -54,4 +50,3 @@ const logger = async (c, next) => {
     const status = c.res.status;
     console.log(`${method} ${path} - ${status} - ${ms}ms`);
 };
-exports.logger = logger;

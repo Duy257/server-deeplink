@@ -1,14 +1,12 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const node_server_1 = require("@hono/node-server");
-const hono_1 = require("hono");
-const cors_1 = require("hono/cors");
-const pretty_json_1 = require("hono/pretty-json");
+import { serve } from '@hono/node-server';
+import { Hono } from 'hono';
+import { cors } from 'hono/cors';
+import { prettyJSON } from 'hono/pretty-json';
 // Create Hono app
-const app = new hono_1.Hono();
+const app = new Hono();
 // Global middleware
-app.use('*', (0, cors_1.cors)());
-app.use('*', (0, pretty_json_1.prettyJSON)());
+app.use('*', cors());
+app.use('*', prettyJSON());
 // Welcome route
 app.get('/', (c) => {
     return c.json({
@@ -103,7 +101,7 @@ app.notFound((c) => {
 });
 // Start server
 const port = 3000;
-(0, node_server_1.serve)({
+serve({
     fetch: app.fetch,
     port
 }, (info) => {

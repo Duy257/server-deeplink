@@ -1,14 +1,23 @@
 import { Context } from "hono";
 
+const APP_STORE_LINK = "https://apps.apple.com/vn/app/chainivo/id6748330113"; // <-- TODO: Replace with your App Store link
+const PLAY_STORE_LINK =
+  "https://play.google.com/store/apps/details?id=com.innotech.chainivo"; // <-- TODO: Replace with your Play Store link
+const FALLBACK_DESKTOP_URL = "https://your-website.com"; // <-- TODO: Replace with your website URL
+
 export const openAppController = (c: Context) => {
   const deeplink = c.req.query("link");
   const userAgent = c.req.header("User-Agent") || "";
-  const appStoreLink = "https://apps.apple.com/vn/app/chainivo/id6748330113"; // <-- TODO: Replace with your App Store link
-  const playStoreLink =
-    "https://play.google.com/store/apps/details?id=com.innotech.chainivo"; // <-- TODO: Replace with your Play Store link
 
   const isIOS = /iPad|iPhone|iPod/.test(userAgent);
   const isAndroid = /android/i.test(userAgent);
+
+  let fallbackStoreUrl = FALLBACK_DESKTOP_URL;
+  if (isIOS) {
+    fallbackStoreUrl = APP_STORE_LINK;
+  } else if (isAndroid) {
+    fallbackStoreUrl = PLAY_STORE_LINK;
+  }
 
   const htmlContent = `
     <!DOCTYPE html>
@@ -24,12 +33,10 @@ export const openAppController = (c: Context) => {
         <script type="text/javascript">
             function openApp() {
                 const deepLink = '${deeplink}';
-                const appStoreLink = '${appStoreLink}';
-                const playStoreLink = '${playStoreLink}';
-                const isIOS = ${isIOS};
-                const isAndroid = ${isAndroid};
+                const fallbackUrl = '${fallbackStoreUrl}';
+                const isMobile = ${isIOS || isAndroid};
 
-                if (isIOS || isAndroid) {
+                if (isMobile) {
                     window.location.href = deepLink;
 
                     const timeout = 2500;
@@ -37,20 +44,16 @@ export const openAppController = (c: Context) => {
 
                     setTimeout(function() {
                         const end = Date.now();
-                        if (document.hidden || end - start >= timeout + 500) {
-                            // App is likely open
+                        // If the page is hidden or the time elapsed is significant, the app is likely open.
+                        if (document.hidden || document.msHidden || document.webkitHidden || end - start >= timeout + 500) {
                             return;
                         }
-                        // App is not installed or failed to open
-                        if (isIOS) {
-                            window.location.href = appStoreLink;
-                        } else if (isAndroid) {
-                            window.location.href = playStoreLink;
-                        }
+                        // App is not installed or failed to open, redirect to the store.
+                        window.location.href = fallbackUrl;
                     }, timeout);
                 } else {
-                    // Fallback for desktop
-                    window.location.href = deepLink;
+                    // Fallback for desktop: redirect to a website.
+                    window.location.href = fallbackUrl;
                 }
             }
             window.onload = openApp;
@@ -59,7 +62,6 @@ export const openAppController = (c: Context) => {
     <body>
         <h1>Redirecting...</h1>
         <p>If the app does not open automatically, please click the button below.</p>
-        <a href="javascript:openApp()" class="button">Open App</a>
     </body>
     </html>
   `;

@@ -1,6 +1,15 @@
-import { Context } from 'hono'
+import { Context } from "hono";
 
 export const openAppController = (c: Context) => {
+  const deeplink = c.req.query("link");
+  const userAgent = c.req.header("User-Agent") || "";
+  const appStoreLink = "https://apps.apple.com/vn/app/zalo/id579523206"; // <-- TODO: Replace with your App Store link
+  const playStoreLink =
+    "https://play.google.com/store/apps/details?id=com.zing.zalo"; // <-- TODO: Replace with your Play Store link
+
+  const isIOS = /iPad|iPhone|iPod/.test(userAgent);
+  const isAndroid = /android/i.test(userAgent);
+
   const htmlContent = `
     <!DOCTYPE html>
     <html>
@@ -10,45 +19,34 @@ export const openAppController = (c: Context) => {
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <script type="text/javascript">
             function openApp() {
-                var userAgent = navigator.userAgent || navigator.vendor || window.opera;
-                var deepLink = 'mychat://'; // <-- TODO: Replace with your app's deep link
-                var appStoreLink = 'https://apps.apple.com/vn/app/zalo/id579523206'; // <-- TODO: Replace with your App Store link
-                var playStoreLink = 'https://play.google.com/store/apps/details?id=com.zing.zalo'; // <-- TODO: Replace with your Play Store link
-                var isIOS = /iPad|iPhone|iPod/.test(userAgent) && !window.MSStream;
-                var isAndroid = /android/i.test(userAgent);
+                var deepLink = '${deeplink}';
+                var appStoreLink = '${appStoreLink}';
+                var playStoreLink = '${playStoreLink}';
+                var isIOS = ${isIOS};
+                var isAndroid = ${isAndroid};
 
                 if (isIOS) {
                     window.location.href = deepLink;
                     setTimeout(function() {
                         window.location.href = appStoreLink;
-                    }, 2500);
+                    }, 500);
                 } else if (isAndroid) {
                     window.location.href = deepLink;
                     setTimeout(function() {
                         window.location.href = playStoreLink;
-                    }, 2500);
+                    }, 500);
                 } else {
-                    // Fallback for desktop or other OS
-                    var messageElement = document.getElementById('message');
-                    if(messageElement) {
-                        messageElement.innerHTML = "Please open this link on your mobile device to proceed.";
-                    }
+                    window.location.href = deepLink;
                 }
             }
             window.onload = openApp;
         </script>
     </head>
     <body>
-        <h1>Opening App...</h1>
-        <p>If you are not redirected automatically, please click the link for your store:</p>
-        <ul>
-            <li><a href="https://apps.apple.com/vn/app/zalo/id579523206">App Store (for iOS)</a></li>
-            <li><a href="https://play.google.com/store/apps/details?id=com.zing.zalo">Google Play (for Android)</a></li>
-        </ul>
-        <div id="message"></div>
+        <p>Redirecting...</p>
     </body>
     </html>
   `;
+
   return c.html(htmlContent);
 };
-

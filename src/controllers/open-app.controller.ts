@@ -3,9 +3,9 @@ import { Context } from "hono";
 export const openAppController = (c: Context) => {
   const deeplink = c.req.query("link");
   const userAgent = c.req.header("User-Agent") || "";
-  const appStoreLink = "https://apps.apple.com/vn/app/zalo/id579523206"; // <-- TODO: Replace with your App Store link
+  const appStoreLink = "https://apps.apple.com/vn/app/chainivo/id6748330113"; // <-- TODO: Replace with your App Store link
   const playStoreLink =
-    "https://play.google.com/store/apps/details?id=com.zing.zalo"; // <-- TODO: Replace with your Play Store link
+    "https://play.google.com/store/apps/details?id=com.innotech.chainivo"; // <-- TODO: Replace with your Play Store link
 
   const isIOS = /iPad|iPhone|iPod/.test(userAgent);
   const isAndroid = /android/i.test(userAgent);

@@ -6,6 +6,7 @@ import dotenv from "dotenv";
 import database from "./config/database.js";
 import openAppRoutes from "./routes/open-app.routes.js";
 import { errorHandler, logger } from "./middleware/error.middleware.js";
+import { notificationController } from "./controllers/notification.controller.js";
 
 // Load environment variables
 dotenv.config();
@@ -23,10 +24,12 @@ app.use("*", errorHandler);
 app.get("/", (c) => {
   return c.json({
     success: true,
-    message: "Welcome to Hono MongoDB Backend API",
+    message: "Welcome to Hono MongoDB Backend API with Firebase Messaging",
     version: "1.0.0",
     endpoints: {
       users: "/api/v1/users",
+      devices: "/api/v1/devices",
+      notifications: "/api/v1/notifications",
       health: "/health",
     },
   });
@@ -60,6 +63,11 @@ const startServer = async () => {
   try {
     // Connect to MongoDB
     await database.connect();
+
+    // Initialize Firebase Messaging
+    console.log("🔥 Initializing Firebase Messaging...");
+    await notificationController.initialize();
+    console.log("✅ Firebase Messaging initialized successfully");
 
     // Start server
     const port = parseInt(process.env.PORT || "3000");
